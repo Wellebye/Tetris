@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, sys
 
 pygame.init()
 
@@ -17,12 +17,126 @@ but_multiplayer_img = pygame.image.load("but_multiplayer.png").convert_alpha()
 but_quit_img = pygame.image.load("but_quit.png").convert_alpha()
 
 
+class colors:
+    dark_grey = (26, 31, 40)
+    green = (47, 230, 23)
+    red = (232, 18, 18)
+    orange = (226, 116, 17)
+    yellow = (237, 234, 4)
+    purple = (166, 0, 247)
+    cyan = (21, 204, 209)
+    blue = (13, 64, 216)
+
+    @classmethod
+    def get_cell_colors(cls):
+        return [cls.dark_grey, cls.green, cls.red, cls.orange, cls.yellow, cls.purple, cls.cyan, cls.blue]
+
+
+        
+
+class position:
+    def __init__(self, row, column):
+        self.row = row
+        self.column = column
+
 class block:
+    def __init__(self, id):
+        self.id = id
+        self.cell = {}
+        self.cell_size = 30
+        self.row_offset = 0
+        self.column_offset = 5
+        self.rotation_state = 0
+        self.colors = colors.get_cell_colors()
+    
+    def move(self, rows, columns):
+        self.row_offset += rows
+        self.column_offset += columns
+    
+    def get_cell_positions(self):
+        tiles = self.cells[self.rotation_state]
+        moved_tiles = []
+        for Position in tiles:
+            Position = position(position.row + self.row_offset, position.column + self.column_offset)
+            moved_tiles.append(Position)
+    
+    def draw(self, screen):
+        tiles = self.cells[self.rotation_state]
+        for tile in tiles:
+            tile_rect = pygame.Rect(tile.column * self.cell_size + 1, tile.row * self.cell_size + 1, self.cell_size - 1, self.cell_size - 1)
+            pygame.draw.rect(screen, self.colors[self.id], tile_rect)
+
+class Lblock(block):
     def __init__(self):
-        self.x = 5
-        self.y = 0
-        self.shape = random.choice(["I", "O", "T", "S", "Z", "J", "L"])
-        self.rotation = 0
+        super().__init__(id = 1)
+        self.cells = {
+            0: [position(0, 1), position(1, 1), position(2, 1), position(2, 2)],
+            1: [position(1, 0), position(1, 1), position(1, 2), position(2, 0)],
+            2: [position(0, 0), position(0, 1), position(1, 1), position(1, 2)],
+            3: [position(0, 2), position(1, 0), position(1, 1), position(1, 2)],
+        }
+
+class Jblock(block):
+    def __init__(self):
+        super().__init__(id = 1)
+        self.cells = {
+            0: [position(2, 0), position(2, 1), position(0, 1), position(1, 1)],
+            1: [position(0, 0), position(1, 0), position(1, 1), position(1, 2)],
+            2: [position(0, 1), position(0, 2), position(1, 1), position(2, 1)],
+            3: [position(1, 0), position(1, 1), position(1, 2), position(2, 2)],
+        }
+
+class Iblock(block):
+    def __init__(self):
+        super().__init__(id = 1)
+        self.cells = {
+            0: [position(1, 0), position(1, 1), position(1, 2), position(1, 3)],
+            1: [position(0, 2), position(1, 2), position(2, 2), position(3, 2)],
+            2: [position(2, 0), position(2, 1), position(2, 2), position(2, 3)],
+            3: [position(0, 1), position(1, 1), position(2, 1), position(3, 2)],
+        }
+
+class Oblock(block):
+    def __init__(self):
+        super().__init__(id = 1)
+        self.cells = {
+            0: [position(0, 0), position(0, 1), position(1, 0), position(1, 1)],
+            1: [position(0, 0), position(0, 1), position(1, 0), position(1, 1)],
+            2: [position(0, 0), position(0, 1), position(1, 0), position(1, 1)],
+            3: [position(0, 0), position(0, 1), position(1, 0), position(1, 1)],
+        }
+
+class Sblock(block):
+    def __init__(self):
+        super().__init__(id = 1)
+        self.cells = {
+            0: [position(0, 1), position(0, 2), position(1, 0), position(1, 1)],
+            1: [position(0, 1), position(1, 1), position(1, 2), position(2, 2)],
+            2: [position(1, 1), position(1, 2), position(2, 0), position(2, 1)],
+            3: [position(0, 0), position(1, 0), position(1, 1), position(2, 1)],
+        }
+
+class Tblock(block):
+    def __init__(self):
+        super().__init__(id = 1)
+        self.cells = {
+            0: [position(0, 1), position(1, 0), position(1, 1), position(1, 2)],
+            1: [position(0, 1), position(1, 1), position(1, 2), position(2, 1)],
+            2: [position(1, 0), position(1, 1), position(1, 2), position(2, 1)],
+            3: [position(0, 1), position(1, 0), position(1, 1), position(2, 1)],
+        }
+
+class Zblock(block):
+    def __init__(self):
+        super().__init__(id = 1)
+        self.cells = {
+            0: [position(0, 0), position(0, 1), position(1, 1), position(1, 2)],
+            1: [position(1, 0), position(1, 1), position(1, 2), position(2, 1)],
+            2: [position(1, 0), position(1, 1), position(2, 1), position(2, 2)],
+            3: [position(0, 1), position(1, 0), position(1, 1), position(2, 0)],
+        }
+
+
 
 class Grid:
     def __init__(self):
@@ -30,19 +144,9 @@ class Grid:
         self.num_cols = 10
         self.cell_size = 30
         self.grid = [[0 for j in range(self.num_cols)] for i in range(self.num_rows)]
-        self.colors = self.get_cell_colors()
+        self.colors = colors.get_cell_colors()
 
-    def get_cell_colors(self):
-        dark_grey = (26, 31, 40)
-        green = (47, 230, 23)
-        red = (232, 18, 18)
-        orange = (226, 116, 17)
-        yellow = (237, 234, 4)
-        purple = (166, 0, 247)
-        cyan = (21, 204, 209)
-        blue = (13, 64, 216)
 
-        return [dark_grey, green, red, orange, yellow, purple, cyan, blue]
 
     def draw(self):
         for row in range(self.num_rows):
@@ -93,10 +197,12 @@ quit_button = Button(SCREEN_WIDTH/2 - but_quit_img.get_width()/2, SCREEN_HEIGHT/
 clock = pygame.time.Clock()
 
 game_grid = Grid()
-game_grid.print_grid()
+
+block = Jblock()
 
 game_started = False
 game_paused = False
+
 
 run = True
 while run:
@@ -119,6 +225,7 @@ while run:
     else:
         screen.fill((202, 228, 255))
         game_grid.draw()
+        block.draw(screen)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
