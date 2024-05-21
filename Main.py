@@ -1,6 +1,5 @@
 import pygame, random, sys
 
-import pygame, random, sys
 
 pygame.init()
 
@@ -145,10 +144,22 @@ class Grid:
         self.num_rows = 20
         self.num_cols = 10
         self.cell_size = 30
+        self.row_bevæg = 0
+        self.cols_bevæg = 0
         self.grid = [[0 for j in range(self.num_cols)] for i in range(self.num_rows)]
         self.colors = colors.get_cell_colors()
 
+    def move(self,rows,cols):
+        self.row_bevæg += rows
+        self.cols_bevæg += cols
 
+    def get_position(self):
+        tiles = self.cells[self.rotation_state]
+        moved_tiles =[]
+        for position in tiles:
+            #position = Position(position.row + self.row_bevæg, position.cols + self.cols_bevæg)
+            moved_tiles.append(position)
+        return moved_tiles
 
     def draw(self):
         for row in range(self.num_rows):
