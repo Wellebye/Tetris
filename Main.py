@@ -19,6 +19,8 @@ clock = pygame.time.Clock()
 
 game = Game()
 
+lives = 3  # Initialize the lives variable to 3
+
 GAME_UPDATE = pygame.USEREVENT
 pygame.time.set_timer(GAME_UPDATE, 200)
 
@@ -29,8 +31,15 @@ while True:
 			sys.exit()
 		if event.type == pygame.KEYDOWN:
 			if game.game_over == True:
-				game.game_over = False
-				game.reset()
+				if lives > 1:  # Check if there are remaining lives
+					lives -= 1  # Decrement the lives variable
+					game.game_over = False
+					game.reset()
+				elif event.key == pygame.K_r and game.game_over == True:
+					game.game_over = False
+					game.score = 0
+					lives = 3
+					game.reset()
 			if event.key == pygame.K_LEFT and game.game_over == False:
 				game.move_left()
 			if event.key == pygame.K_RIGHT and game.game_over == False:
@@ -43,7 +52,9 @@ while True:
 		if event.type == GAME_UPDATE and game.game_over == False:
 			game.move_down()
 
-	#Drawing
+    
+
+	# Drawing
 	score_value_surface = title_font.render(str(game.score), True, Colors.white)
 
 	screen.fill(Colors.dark_blue)
@@ -54,10 +65,14 @@ while True:
 		screen.blit(game_over_surface, (320, 450, 50, 50))
 
 	pygame.draw.rect(screen, Colors.light_blue, score_rect, 0, 10)
-	screen.blit(score_value_surface, score_value_surface.get_rect(centerx = score_rect.centerx, 
-		centery = score_rect.centery))
+	screen.blit(score_value_surface, score_value_surface.get_rect(centerx=score_rect.centerx,
+																  centery=score_rect.centery))
 	pygame.draw.rect(screen, Colors.light_blue, next_rect, 0, 10)
 	game.draw(screen)
+
+	# Display remaining lives
+	lives_surface = title_font.render("Lives: " + str(lives), True, Colors.white)
+	screen.blit(lives_surface, (20, 20))
 
 	pygame.display.update()
 	clock.tick(60)
